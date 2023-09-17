@@ -76,6 +76,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           release_name: OpenDTU ${{ env.TAG }}
+          tag_name: ${{ env.TAG }}
           body: |
             OpenDTU commit ${{ env.OPENDTU_VERSION }}
 
