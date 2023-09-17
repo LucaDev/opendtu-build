@@ -44,7 +44,9 @@ jobs:
           git fetch --tags
           export TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           git checkout $TAG
-          export OPENDTU_VERSION=$(git log --format="%h" -n 1)
+
+          echo "TAG=$TAG" >> >> $GITHUB_ENV
+          echo "TAG=$(git log --format="%h" -n 1)" >> >> $GITHUB_ENV
 
       - name: Patch
         run: |
