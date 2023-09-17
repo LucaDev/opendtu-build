@@ -3,6 +3,9 @@ name: OpenDTU Build
 on:
   schedule:
     - cron:  '0 3 * * *'
+  push:
+    branches:
+      - main
 env:
   GIT_CLONE_URL: https://github.com/tbnobody/OpenDTU.git
 
