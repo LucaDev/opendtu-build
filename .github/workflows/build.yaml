@@ -16,7 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: opendtu_release
+      - id: opendtu_release
+        name: Get OpenDTU release
         uses: pozetroninc/github-action-get-latest-release@master
         with:
           owner: tbnobody
