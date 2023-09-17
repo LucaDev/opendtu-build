@@ -46,7 +46,7 @@ jobs:
           git checkout $TAG
 
           echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "TAG=$(git log --format="%h" -n 1)" >> $GITHUB_ENV
+          echo "COMMIT=$(git log --format="%h" -n 1)" >> $GITHUB_ENV
 
       - name: Patch
         run: |
@@ -77,10 +77,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release_name: OpenDTU ${{ env.TAG }}
-          tag_name: ${{ env.TAG }}
+          release_name: ${{ steps.opendtu_release.outputs.release }}
+          tag_name: ${{ steps.opendtu_release.outputs.release }}
           body: |
-            OpenDTU commit ${{ env.OPENDTU_VERSION }}
+            OpenDTU commit ${{ env.COMMIT }}
 
       - uses: actions/upload-release-asset@master
         env:
