@@ -68,7 +68,7 @@ jobs:
       - name: Build PlatformIO Project
         run: |
           cd opendtu 
-          pio run -e lolin_s2_mini Build
+          pio run -e lolin_s2_mini -t build
 
       - uses: actions/create-release@master
         id: create_release
