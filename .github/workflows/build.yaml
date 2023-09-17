@@ -1,0 +1,82 @@
+name: OpenDTU Build
+
+on:
+  schedule:
+    - cron:  '0 3 * * *'
+env:
+  GIT_CLONE_URL: https://github.com/tbnobody/OpenDTU.git
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: opendtu_release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          owner: tbnobody
+          repo: OpenDTU
+          excludes: prerelease, draft
+
+      - id: last_build
+        name: Get lastest Build
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          owner: LucaDev
+          repo: OpenDTU-Build
+          excludes: prerelease, draft
+
+      - name: cancel run if same versions
+        if: steps.last_build.outputs.release === steps.opendtu_release.outputs.release
+        uses: andymckay/cancel-action@0.3
+
+      - name: Clone OpenDTU
+        run: git clone ${{ GIT_CLONE_URL }} opendtu
+
+      - name: Get Version
+        run: |
+          cd opendtu
+          git fetch --tags
+          export TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          git checkout $TAG
+          
+          export OPENDTU_VERSION=$(git log --format="%h" -n 1)
+
+      - name: Patch
+        run: git apply ../patches/*
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build PlatformIO Project
+        run: pio run -e lolin_s2_mini Build
+
+      - uses: actions/create-release@master
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_name: OpenDTU ${{ env.TAG }}
+          body: |
+            OpenDTU commit ${{ env.OPENDTU_VERSION }}
+
+      - uses: actions/upload-release-asset@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .pio/build/lolin_s2_mini/firmware.bin
+          asset_name: opendtu-lolin_s2_mini.bin
