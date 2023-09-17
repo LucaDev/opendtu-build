@@ -48,7 +48,7 @@ jobs:
           export OPENDTU_VERSION=$(git log --format="%h" -n 1)
 
       - name: Patch
-        run: git apply ../patches/*
+        run: sh -c "git apply ../patches/*.patch"
 
       - uses: actions/cache@v3
         with:
