@@ -40,6 +40,7 @@ jobs:
         run: git clone $GIT_CLONE_URL opendtu
 
       - name: Get Version
+        id: get_version
         run: |
           cd opendtu
           git fetch --tags
@@ -48,7 +49,7 @@ jobs:
 
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "COMMIT=$(git log --format="%h" -n 1)" >> $GITHUB_ENV
-          echo "PATCHES=$(ls ../patches/*.patch)" >> $GITHUB_ENV
+          echo "patches=\"$(ls -1 ../patches/*.patch)\"" >> $GITHUB_OUTPUT
       - name: Patch
         run: |
           cd opendtu
@@ -82,7 +83,8 @@ jobs:
           tag_name: ${{ steps.opendtu_release.outputs.release }}
           body: |
             OpenDTU commit ${{ env.COMMIT }}
-            Patches: ${{ env.PATCHES }}
+            Patches:
+            ${{ steps.get_version.outputs.patches }}
 
       - uses: actions/upload-release-asset@master
         env:
