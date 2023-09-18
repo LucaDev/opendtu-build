@@ -49,9 +49,9 @@ jobs:
 
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "COMMIT=$(git log --format="%h" -n 1)" >> $GITHUB_ENV
-          echo "patches=<<EOF" >> $GITHUB_OUTPUT
+          echo 'patches=<<EOF' >> $GITHUB_OUTPUT
           echo "$(ls -1 ../patches/*.patch)" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
       - name: Patch
         run: |
           cd opendtu
