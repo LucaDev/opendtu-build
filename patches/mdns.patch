@@ -1,0 +1,50 @@
+diff --git a/include/NetworkSettings.h b/include/NetworkSettings.h
+index f2cbdad..d3c4f28 100644
+--- a/include/NetworkSettings.h
++++ b/include/NetworkSettings.h
+@@ -59,6 +59,7 @@ public:
+ private:
+     void setHostname();
+     void setStaticIp();
++    void setupMDNS();
+     void setupMode();
+     void NetworkEvent(WiFiEvent_t event);
+     bool adminEnabled = true;
+diff --git a/src/NetworkSettings.cpp b/src/NetworkSettings.cpp
+index e095754..4de76a5 100644
+--- a/src/NetworkSettings.cpp
++++ b/src/NetworkSettings.cpp
+@@ -9,6 +9,7 @@
+ #include "Utils.h"
+ #include "defaults.h"
+ #include <ETH.h>
++#include <ESPmDNS.h>
+ 
+ NetworkSettingsClass::NetworkSettingsClass()
+     : apIp(192, 168, 4, 1)
+@@ -238,6 +239,7 @@ void NetworkSettingsClass::applyConfig()
+     }
+     MessageOutput.println("done");
+     setStaticIp();
++    setupMDNS();
+ }
+ 
+ void NetworkSettingsClass::setHostname()
+@@ -298,6 +300,17 @@ void NetworkSettingsClass::setStaticIp()
+     }
+ }
+ 
++void NetworkSettingsClass::setupMDNS()
++{
++    MessageOutput.print(F("Setting up mDNS responder... "));
++    if (!MDNS.begin(getHostname().c_str())) {
++        MessageOutput.print(F("failed"));
++        return;
++    }
++
++    MessageOutput.println(F("successful"));
++}
++
+ IPAddress NetworkSettingsClass::localIP()
+ {
+     switch (_networkMode) {
