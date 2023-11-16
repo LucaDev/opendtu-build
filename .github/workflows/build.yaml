@@ -69,7 +69,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+        run: pip install --upgrade setuptools platformio
 
       - name: Build PlatformIO Project
         run: |
