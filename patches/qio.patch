@@ -1,9 +1,9 @@
 diff --git a/platformio.ini b/platformio.ini
-index 9544ed8..053ad7e 100644
+index ad8169a..604c8c0 100644
 --- a/platformio.ini
 +++ b/platformio.ini
-@@ -193,6 +193,7 @@ build_flags = ${env.build_flags}
- 
+@@ -190,6 +190,7 @@ build_flags = ${env.build_flags}
+
  [env:lolin_s2_mini]
  board = lolin_s2_mini
 +board_build.flash_mode = qio
