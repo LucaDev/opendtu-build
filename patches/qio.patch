@@ -1,11 +1,11 @@
-index ad8169a..604c8c0 100644
+index 4df46ed..059d51a 100644
 --- a/platformio.ini
 +++ b/platformio.ini
-@@ -190,6 +190,7 @@ build_flags = ${env.build_flags}
-
+@@ -212,6 +212,7 @@ build_flags = ${env.build_flags}
+ 
  [env:lolin_s2_mini]
  board = lolin_s2_mini
 +board_build.flash_mode = qio
  build_flags = ${env.build_flags}
-     -DHOYMILES_PIN_MISO=13
-     -DHOYMILES_PIN_MOSI=11
+     -DHOYMILES_PIN_MISO=GPIO_NUM_13
+     -DHOYMILES_PIN_MOSI=GPIO_NUM_11
