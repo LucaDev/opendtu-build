@@ -2,10 +2,11 @@ name: OpenDTU Build
 
 on:
   schedule:
-    - cron:  '0 3 * * *'
+    - cron: '0 3 * * *'
   push:
     branches:
       - main
+
 env:
   GIT_CLONE_URL: https://github.com/tbnobody/OpenDTU.git
 
@@ -25,21 +26,30 @@ jobs:
           excludes: prerelease, draft
 
       - id: last_build
-        name: Get lastest Build
+        name: Get latest Build
         uses: pozetroninc/github-action-get-latest-release@master
         with:
           owner: LucaDev
           repo: OpenDTU-Build
           excludes: prerelease, draft
 
-      - name: cancel run if same versions
-        if: steps.last_build.outputs.release == steps.opendtu_release.outputs.release
-        uses: andymckay/cancel-action@0.5
+      - name: Check if new version available
+        id: check_new
+        run: |
+          if [ "${{ steps.last_build.outputs.release }}" = "${{ steps.opendtu_release.outputs.release }}" ]; then
+            echo "No new version available."
+            echo "new_version=false" >> $GITHUB_OUTPUT
+          else
+            echo "New version found: ${{ steps.opendtu_release.outputs.release }}"
+            echo "new_version=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Clone OpenDTU
+        if: steps.check_new.outputs.new_version == 'true'
         run: git clone $GIT_CLONE_URL opendtu
 
       - name: Get Version
+        if: steps.check_new.outputs.new_version == 'true'
         id: get_version
         run: |
           cd opendtu
@@ -52,12 +62,15 @@ jobs:
           echo 'patches<<EOF' >> $GITHUB_OUTPUT
           echo "$(ls -1 ../patches/*.patch)" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
+
       - name: Patch
+        if: steps.check_new.outputs.new_version == 'true'
         run: |
           cd opendtu
           git apply ../patches/*.patch
 
       - uses: actions/cache@v3
+        if: steps.check_new.outputs.new_version == 'true'
         with:
           path: |
             ~/.cache/pip
@@ -65,18 +78,22 @@ jobs:
           key: ${{ runner.os }}-pio
 
       - uses: actions/setup-python@v4
+        if: steps.check_new.outputs.new_version == 'true'
         with:
           python-version: '3.x'
 
       - name: Install PlatformIO Core
+        if: steps.check_new.outputs.new_version == 'true'
         run: pip install --upgrade setuptools platformio
 
       - name: Build PlatformIO Project
+        if: steps.check_new.outputs.new_version == 'true'
         run: |
-          cd opendtu 
+          cd opendtu
           pio run -e lolin_s2_mini
 
       - uses: actions/create-release@master
+        if: steps.check_new.outputs.new_version == 'true'
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,6 +106,7 @@ jobs:
             ${{ steps.get_version.outputs.patches }}
 
       - uses: actions/upload-release-asset@master
+        if: steps.check_new.outputs.new_version == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
